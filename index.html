@@ -1,37 +1,108 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <title>Castle Siege - Registro</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-  <script src="script.js" defer></script>
+    <meta charset="UTF-8">
+    <title>Castle Siege</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Firebase App -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <!-- Firebase Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
+
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        input, button { padding: 8px; margin: 5px; }
+        #playersList { margin-top: 20px; }
+    </style>
 </head>
 <body>
-  <h1>Castle Siege - Registro de Jogadores</h1>
+    <h1>Castle Siege - Registro de Jogadores</h1>
 
-  <!-- Formulário -->
-  <form id="cadastroForm">
-    <input type="text" id="nome" placeholder="Nome" required>
-    <input type="text" id="classe" placeholder="Classe" required>
-    <input type="text" id="nick" placeholder="Nick" required>
-    <button type="submit">Registrar</button>
-  </form>
+    <div id="adminLoginDiv">
+        <input type="email" id="adminEmail" placeholder="Email Admin">
+        <button id="adminLogin">Entrar como Admin</button>
+    </div>
 
-  <h2>Lista de Jogadores</h2>
-  <ul id="lista"></ul>
+    <div>
+        <input type="text" id="name" placeholder="Nome">
+        <input type="text" id="classe" placeholder="Classe">
+        <input type="text" id="nick" placeholder="Nick">
+        <button id="registerBtn">Registrar</button>
+    </div>
 
-  <hr>
+    <button id="clearBtn" style="display:none;">Zerar Lista (Admin)</button>
 
-  <!-- Login Admin -->
-  <h2>Login Admin</h2>
-  <input type="email" id="adminEmail" placeholder="Email">
-  <input type="password" id="adminSenha" placeholder="Senha">
-  <button id="loginBtn">Login</button>
-  <button id="logoutBtn" style="display:none">Logout</button>
+    <ul id="playersList"></ul>
 
-  <!-- Botão Reset -->
-  <button id="resetBtn" style="display:none; color:red">Zerar Lista</button>
+    <script>
+        // 🔥 Config do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAH86f5LoSBj63MIR7SzVDGkrLP90Zy6jY",
+            authDomain: "registro-players.firebaseapp.com",
+            databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
+            projectId: "registro-players",
+            storageBucket: "registro-players.firebasestorage.app",
+            messagingSenderId: "156344963881",
+            appId: "1:156344963881:web:79efd9aeade8454d8b5d38",
+            measurementId: "G-7HKNWBDJYT"
+        };
+
+        // Inicializa Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        const registerBtn = document.getElementById("registerBtn");
+        const clearBtn = document.getElementById("clearBtn");
+        const playersList = document.getElementById("playersList");
+        const adminLogin = document.getElementById("adminLogin");
+
+        let isAdmin = false;
+
+        // Registrar jogador
+        registerBtn.addEventListener("click", () => {
+            const name = document.getElementById("name").value.trim();
+            const classe = document.getElementById("classe").value.trim();
+            const nick = document.getElementById("nick").value.trim();
+
+            if(!name || !classe || !nick) return alert("Preencha todos os campos!");
+
+            const newPlayer = { name, classe, nick };
+            db.ref("players").push(newPlayer);
+        });
+
+        // Monitorar lista de jogadores
+        db.ref("players").on("value", snapshot => {
+            playersList.innerHTML = "";
+            snapshot.forEach(snap => {
+                const p = snap.val();
+                const li = document.createElement("li");
+                li.textContent = `${p.name} | ${p.classe} | ${p.nick}`;
+                playersList.appendChild(li);
+            });
+        });
+
+        // Login Admin simples (apenas e-mail)
+        adminLogin.addEventListener("click", () => {
+            const email = document.getElementById("adminEmail").value.trim();
+            const admins = ["seuemail@gmail.com"]; // coloque os e-mails de admins
+            if(admins.includes(email)){
+                isAdmin = true;
+                clearBtn.style.display = "inline-block";
+                alert("Admin logado!");
+            } else {
+                alert("Email não autorizado");
+            }
+        });
+
+        // Zerar lista (apenas admin)
+        clearBtn.addEventListener("click", () => {
+            if(isAdmin){
+                db.ref("players").remove();
+            } else {
+                alert("Somente admins podem zerar a lista!");
+            }
+        });
+    </script>
 </body>
 </html>
