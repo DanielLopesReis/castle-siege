@@ -1,92 +1,85 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExilliuM - Castle Siege - Registro de jogadores</title>
-    <link rel="stylesheet" href="style.css"> <!-- se tiver um CSS externo -->
+    <title>ExilliuM - Castle Siege</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #121212;
-            color: #f0f0f0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: #f0f0f0;
+            text-align: center;
             padding: 20px;
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
 
         form {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: 300px;
-        }
-
-        input, button {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: none;
+            margin-bottom: 20px;
         }
 
         input {
-            width: 100%;
+            padding: 10px;
+            margin: 5px;
+            width: 200px;
         }
 
         button {
+            padding: 10px 20px;
+            margin: 5px;
             cursor: pointer;
-            background-color: #ff6f61;
-            color: #fff;
-            font-weight: bold;
-            transition: background 0.3s;
         }
 
-        button:hover {
-            background-color: #ff3b2e;
+        ul {
+            list-style: none;
+            padding: 0;
         }
 
-        #playersList {
-            margin-top: 20px;
-            width: 90%;
-            max-width: 600px;
-        }
-
-        .player-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 10px;
-            background: #1f1f1f;
-            margin-bottom: 5px;
-            border-radius: 4px;
+        li {
+            background-color: #fff;
+            margin: 5px auto;
+            padding: 10px;
+            width: 300px;
+            border-radius: 5px;
+            text-align: left;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
         }
     </style>
-</head>
-<body>
-    <h1>ExilliuM<br>Castle Siege - Registro de jogadores</h1>
-
-    <form id="playerForm" onsubmit="addPlayer(); return false;">
-        <input type="text" id="nome" placeholder="Nome" required>
-        <input type="text" id="classe" placeholder="Classe" required>
-        <input type="text" id="nick" placeholder="Nick" required>
-        <button type="submit">Cadastrar</button>
-    </form>
-
-    <div style="margin-top:20px;">
-        <button onclick="checkAdmin('limpar')">Limpar Lista</button>
-        <button onclick="checkAdmin('exportar')">Exportar Lista</button>
-    </div>
-
-    <div id="playersList"></div>
-
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="script.js"></script>
-</body>
-</html>
+</head>
+<body>
+
+<h1>
+    <span style="color: red;">ExilliuM</span><br>
+    Castle Siege - Registro de jogadores
+</h1>
+
+<form id="playerForm">
+    <input type="text" id="nome" placeholder="Nome">
+    <input type="text" id="classe" placeholder="Classe">
+    <input type="text" id="nick" placeholder="Nick">
+    <button type="button" onclick="addPlayer()">Cadastrar</button>
+</form>
+
+<button onclick="checkAdmin('limpar')">Limpar Lista</button>
+<button onclick="checkAdmin('exportar')">Exportar Lista</button>
+
+<ul id="playerList"></ul>
+
+<script>
+    // 🔥 Config do Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyAH86f5LoSBj63MIR7SzVDGkrLP90Zy6jY",
+        authDomain: "registro-players.firebaseapp.com",
+        databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
+        projectId: "registro-players",
+        storageBucket: "registro-players.firebasestorage.app",
+        messagingSenderId: "156344963881",
+        appId: "1:156344963881:web:79efd9aeade8454d8b5d38",
+        measurementId: "G-7HKNWBDJYT"
+    };
+
+    f
