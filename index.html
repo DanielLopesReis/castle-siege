@@ -3,33 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Castle Siege - Registro de Jogadores</title>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="script.js" defer></script>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        input, button { padding: 8px; margin: 5px 0; }
-        #msgCadastro { margin-top: 10px; font-weight: bold; }
-    </style>
+    <title>Castle Siege - Cadastro de Jogadores</title>
 </head>
 <body>
-    <h1>Castle Siege - Registro de Jogadores</h1>
+    <h1>Castle Siege - Cadastro de Jogadores</h1>
 
     <form id="formCadastro">
-        <input type="text" id="nome" placeholder="Nome" required><br>
-        <input type="text" id="classe" placeholder="Classe" required><br>
-        <input type="text" id="nick" placeholder="Nick" required><br>
+        <label>Nome:</label>
+        <input type="text" id="nome" required><br><br>
+
+        <label>Classe:</label>
+        <input type="text" id="classe" required><br><br>
+
+        <label>Nick:</label>
+        <input type="text" id="nick" required><br><br>
+
         <button type="submit">Cadastrar</button>
     </form>
 
-    <div id="msgCadastro"></div>
+    <div id="msgCadastro" style="color: green; margin-top: 10px;"></div>
 
     <hr>
 
-    <h2>Admin - Exportar Lista de Jogadores</h2>
-    <input type="email" id="adminEmail" placeholder="Digite seu e-mail">
-    <button id="loginBtn">Entrar como Admin</button>
-    <button id="exportBtn">Exportar Lista</button>
+    <h2>Administração</h2>
+    <label>Email do Admin:</label>
+    <input type="email" id="adminEmail"><br><br>
+    <button id="btnLoginAdmin">Login Admin</button>
+    <div id="msgAdmin" style="color: red; margin-top: 5px;"></div>
+
+    <button id="btnExportarLista" style="margin-top:10px;">Exportar Lista</button>
+    <button id="btnZerarLista" style="margin-top:10px;">Zerar Lista</button>
+
+    <pre id="listaJogadores" style="background:#f0f0f0; padding:10px; margin-top:10px;"></pre>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>
