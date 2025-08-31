@@ -1,155 +1,30 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExilliuM - Castle Siege</title>
+    <title>ExilliuM - Castle Siege - Registro de jogadores</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        input, select, button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-        }
-        button {
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #ff5722;
-            color: white;
-        }
-        #player-list {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px;
-        }
-        .player-item {
-            background-color: #1f1f1f;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-        }
+        body { font-family: Arial, sans-serif; background-color: #111; color: #fff; text-align: center; }
+        h1 span { color: red; }
+        input, button { padding: 10px; margin: 5px; border-radius: 5px; border: none; }
+        input { width: 200px; }
+        button { cursor: pointer; background-color: #444; color: #fff; }
+        #playerList { margin-top: 20px; }
+        .playerItem { padding: 5px; border-bottom: 1px solid #555; }
     </style>
 </head>
 <body>
+    <h1><span>ExilliuM</span><br>Castle Siege - Registro de jogadores</h1>
+    <input type="text" id="name" placeholder="Nome">
+    <input type="text" id="class" placeholder="Classe">
+    <input type="text" id="nick" placeholder="Nick">
+    <button onclick="addPlayer()">Registrar</button>
+    <button onclick="exportList()">Exportar lista</button>
+    <button onclick="clearList()">Limpar lista</button>
+    <div id="playerList"></div>
 
-    <h1>
-        <span style="color: red;">ExilliuM</span><br>
-        Castle Siege - Registro de jogadores
-    </h1>
-
-    <div>
-        <input type="text" id="name" placeholder="Nome">
-        <input type="text" id="classe" placeholder="Classe">
-        <input type="text" id="nick" placeholder="Nick">
-        <button onclick="addPlayer()">Cadastrar</button>
-    </div>
-
-    <div>
-        <button onclick="checkAdmin('limpar')">Limpar Lista</button>
-        <button onclick="checkAdmin('exportar')">Exportar Lista</button>
-    </div>
-
-    <div id="player-list"></div>
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-    <script>
-        // 🔥 Config do Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAH86f5LoSBj63MIR7SzVDGkrLP90Zy6jY",
-            authDomain: "registro-players.firebaseapp.com",
-            databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
-            projectId: "registro-players",
-            storageBucket: "registro-players.firebasestorage.app",
-            messagingSenderId: "156344963881",
-            appId: "1:156344963881:web:79efd9aeade8454d8b5d38",
-            measurementId: "G-7HKNWBDJYT"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
-        const ADMIN_PASSWORD = "minhaSenhaSecreta"; // altere aqui sua senha
-
-        function addPlayer() {
-            const name = document.getElementById("name").value.trim();
-            const classe = document.getElementById("classe").value.trim();
-            const nick = document.getElementById("nick").value.trim();
-
-            if (!name || !classe || !nick) {
-                alert("Preencha todos os campos!");
-                return;
-            }
-
-            const newPlayerRef = db.ref("players").push();
-            newPlayerRef.set({ name, classe, nick });
-            alert("Cadastro efetuado com sucesso!");
-
-            document.getElementById("name").value = "";
-            document.getElementById("classe").value = "";
-            document.getElementById("nick").value = "";
-        }
-
-        function checkAdmin(action) {
-            const senha = prompt("Digite a senha de administrador:");
-            if (senha === ADMIN_PASSWORD) {
-                if (action === "limpar") clearList();
-                else if (action === "exportar") exportList();
-            } else {
-                alert("Senha incorreta! Ação não permitida.");
-            }
-        }
-
-        function clearList() {
-            if (confirm("Tem certeza que deseja limpar toda a lista?")) {
-                db.ref("players").remove();
-            }
-        }
-
-        function exportList() {
-            db.ref("players").once("value").then(snapshot => {
-                let data = "";
-                snapshot.forEach(player => {
-                    const { name, classe, nick } = player.val();
-                    data += `${name} - ${classe} - ${nick}\n`;
-                });
-
-                const blob = new Blob([data], { type: "text/plain;charset=utf-8" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = "players.txt";
-                a.click();
-                URL.revokeObjectURL(url);
-            });
-        }
-
-        // Atualiza lista em tempo real
-        db.ref("players").on("value", snapshot => {
-            const listDiv = document.getElementById("player-list");
-            listDiv.innerHTML = "";
-            snapshot.forEach(player => {
-                const { name, classe, nick } = player.val();
-                const div = document.createElement("div");
-                div.classList.add("player-item");
-                div.textContent = `${name} - ${classe} - ${nick}`;
-                listDiv.appendChild(div);
-            });
-        });
-    </script>
-
+    <script src="script.js"></script>
 </body>
 </html>
