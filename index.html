@@ -1,93 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Castle Siege - Registro de Players</title>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #f5f5f5;
-        margin: 0;
-        padding: 0;
-    }
-    .container {
-        max-width: 800px;
-        margin: 30px auto;
-        padding: 20px;
-        background-color: #1e1e1e;
-        border-radius: 10px;
-        box-shadow: 0 0 10px #000;
-    }
-    h1 {
-        text-align: center;
-        color: #ffcc00;
-    }
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
-    }
-    input, button {
-        padding: 10px;
-        border-radius: 5px;
-        border: none;
-    }
-    input {
-        font-size: 16px;
-    }
-    button {
-        cursor: pointer;
-        font-weight: bold;
-        background-color: #ffcc00;
-        color: #000;
-        transition: 0.3s;
-    }
-    button:hover {
-        background-color: #ffaa00;
-    }
-    #listaPlayers {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-    }
-    .card {
-        background-color: #2e2e2e;
-        padding: 15px;
-        border-radius: 8px;
-        flex: 1 1 calc(50% - 20px);
-        box-sizing: border-box;
-        box-shadow: 0 0 5px #000;
-    }
-    .card strong {
-        color: #ffcc00;
-    }
-    .message {
-        color: #00ff00;
-        font-weight: bold;
-    }
-</style>
+    <meta charset="UTF-8">
+    <title>Castle Siege</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f7f7f7; }
+        h1 { color: #333; }
+        .card { border: 1px solid #333; padding: 10px; margin: 5px; border-radius: 8px; background-color: #e3f2fd; }
+        #msgCadastro { color: green; margin-top: 10px; }
+        .admin-section { margin-top: 20px; padding: 10px; border: 1px solid #666; border-radius: 8px; background-color: #fff3e0; }
+        button { margin-top: 5px; padding: 5px 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
-<div class="container">
-    <h1>Castle Siege - Registro de Players</h1>
-    <form id="formPlayer">
-        <input type="text" id="nome" placeholder="Nome" required>
-        <input type="text" id="classe" placeholder="Classe" required>
-        <input type="text" id="nick" placeholder="Nick" required>
-        <button type="submit">Cadastrar Player</button>
-    </form>
-    <div class="message" id="msgSuccess"></div>
-    <button id="btnExport">Exportar Lista</button>
-    <button id="btnClear">Zerar Lista (Admin)</button>
-    <div id="listaPlayers"></div>
-</div>
+    <h1>Castle Siege - Cadastro de Players</h1>
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script src="script.js"></script>
+    <form id="formCadastro">
+        Nome: <input type="text" id="nome" required><br><br>
+        Classe: <input type="text" id="classe" required><br><br>
+        Nick: <input type="text" id="nick" required><br><br>
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <div id="msgCadastro"></div>
+
+    <h2>Lista de Players</h2>
+    <div id="listaPlayers"></div>
+
+    <div class="admin-section">
+        <h3>Administração</h3>
+        E-mail Admin: <input type="email" id="emailAdmin"><br>
+        <button id="btnLimparLista">Limpar Lista (Admin)</button>
+        <button id="btnExportar">Exportar TXT</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="script.js" defer></script>
 </body>
 </html>

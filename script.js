@@ -13,75 +13,69 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const form = document.getElementById("formPlayer");
-const lista = document.getElementById("listaPlayers");
-const msgSuccess = document.getElementById("msgSuccess");
-const btnExport = document.getElementById("btnExport");
-const btnClear = document.getElementById("btnClear");
-
-// Atualiza lista em tempo real
-db.ref("players").on("value", (snapshot) => {
-    const players = snapshot.val();
-    lista.innerHTML = "";
-    if(players){
-        Object.keys(players).forEach(key => {
-            const p = players[key];
-            lista.innerHTML += `
-                <div class="card">
-                    <strong>${p.nome}</strong><br>
-                    Classe: ${p.classe}<br>
-                    Nick: ${p.nick}
-                </div>
-            `;
-        });
-    }
-});
-
-// Cadastro
-form.addEventListener("submit", (e) => {
+// Função de cadastro
+document.getElementById("formCadastro").addEventListener("submit", function(e) {
     e.preventDefault();
     const nome = document.getElementById("nome").value;
     const classe = document.getElementById("classe").value;
     const nick = document.getElementById("nick").value;
 
-    const newPlayerRef = db.ref("players").push();
-    newPlayerRef.set({ nome, classe, nick })
+    db.ref("players").push({ nome, classe, nick })
         .then(() => {
-            msgSuccess.textContent = "Cadastro efetuado com sucesso!";
-            setTimeout(() => { msgSuccess.textContent = ""; }, 3000);
-            form.reset();
+            document.getElementById("msgCadastro").innerText = "Cadastro efetuado com sucesso!";
+            document.getElementById("formCadastro").reset();
         })
         .catch(err => console.error(err));
 });
 
-// Exportar lista
-btnExport.addEventListener("click", () => {
-    db.ref("players").once("value", snapshot => {
-        const data = snapshot.val();
-        if(!data) { alert("Lista vazia"); return; }
-        let csv = "Nome,Classe,Nick\n";
-        Object.keys(data).forEach(key => {
-            const p = data[key];
-            csv += `${p.nome},${p.classe},${p.nick}\n`;
-        });
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "players.csv";
-        a.click();
-    });
+// Função de atualizar lista em tempo real
+firebase.database().ref("players").on("value", snapshot => {
+    const players = snapshot.val();
+    const lista = document.getElementById("listaPlayers");
+    lista.innerHTML = "";
+
+    for (let key in players) {
+        const p = players[key];
+        lista.innerHTML += `
+            <div class="card">
+                <strong>${p.nome}</strong><br>
+                Classe: ${p.classe}<br>
+                Nick: ${p.nick}
+            </div>
+        `;
+    }
 });
 
-// Zerar lista (apenas admin)
-btnClear.addEventListener("click", () => {
-    const adminEmail = prompt("Digite seu email de admin para confirmar:");
-    const allowed = ["seuemail@gmail.com"]; // Substitua pelo seu email
-    if(allowed.includes(adminEmail)){
-        if(confirm("Tem certeza que deseja zerar a lista?")){
+// Admin: Limpar lista
+document.getElementById("btnLimparLista").addEventListener("click", function() {
+    const email = document.getElementById("emailAdmin").value;
+    if (email === "daniel.consultor01@gmail.com") {
+        if (confirm("Tem certeza que deseja limpar toda a lista?")) {
             db.ref("players").remove();
         }
     } else {
-        alert("Acesso negado!");
+        alert("Permissão negada: e-mail não autorizado.");
+    }
+});
+
+// Admin: Exportar TXT
+document.getElementById("btnExportar").addEventListener("click", function() {
+    const email = document.getElementById("emailAdmin").value;
+    if (email === "daniel.consultor01@gmail.com") {
+        db.ref("players").once("value").then(snapshot => {
+            const players = snapshot.val();
+            let conteudo = "";
+            for (let key in players) {
+                const p = players[key];
+                conteudo += `${p.nome} - ${p.classe} - ${p.nick}\n`;
+            }
+            const blob = new Blob([conteudo], { type: "text/plain" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "players.txt";
+            link.click();
+        });
+    } else {
+        alert("Permissão negada: e-mail não autorizado.");
     }
 });
