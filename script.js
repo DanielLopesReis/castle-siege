@@ -46,7 +46,7 @@ document.getElementById("formCadastro").addEventListener("submit", function(e) {
 document.getElementById("loginBtn").addEventListener("click", function() {
     const email = document.getElementById("adminEmail").value.trim();
     const adminEmails = [
-        "seuemail@gmail.com",
+        "daniel.consultor01@gmail.com",
         //"outro@gmail.com",
         //"terceiro@gmail.com"
     ];
