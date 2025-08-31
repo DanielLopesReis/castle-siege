@@ -2,84 +2,110 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ExilliuM - Castle Siege</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            text-align: center;
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             padding: 20px;
         }
-
         h1 {
-            margin-bottom: 30px;
-        }
-
-        form {
+            text-align: center;
             margin-bottom: 20px;
         }
-
-        input {
+        input, select, button {
             padding: 10px;
             margin: 5px;
-            width: 200px;
+            font-size: 16px;
         }
-
         button {
-            padding: 10px 20px;
-            margin: 5px;
             cursor: pointer;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            background-color: #fff;
-            margin: 5px auto;
-            padding: 10px;
-            width: 300px;
+            border: none;
             border-radius: 5px;
-            text-align: left;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            background-color: #ff5722;
+            color: white;
+        }
+        #player-list {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+        .player-item {
+            background-color: #1f1f1f;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 5px;
         }
     </style>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<h1>
-    <span style="color: red;">ExilliuM</span><br>
-    Castle Siege - Registro de jogadores
-</h1>
+    <h1>
+        <span style="color: red;">ExilliuM</span><br>
+        Castle Siege - Registro de jogadores
+    </h1>
 
-<form id="playerForm">
-    <input type="text" id="nome" placeholder="Nome">
-    <input type="text" id="classe" placeholder="Classe">
-    <input type="text" id="nick" placeholder="Nick">
-    <button type="button" onclick="addPlayer()">Cadastrar</button>
-</form>
+    <div>
+        <input type="text" id="name" placeholder="Nome">
+        <input type="text" id="classe" placeholder="Classe">
+        <input type="text" id="nick" placeholder="Nick">
+        <button onclick="addPlayer()">Cadastrar</button>
+    </div>
 
-<button onclick="checkAdmin('limpar')">Limpar Lista</button>
-<button onclick="checkAdmin('exportar')">Exportar Lista</button>
+    <div>
+        <button onclick="checkAdmin('limpar')">Limpar Lista</button>
+        <button onclick="checkAdmin('exportar')">Exportar Lista</button>
+    </div>
 
-<ul id="playerList"></ul>
+    <div id="player-list"></div>
 
-<script>
-    // 🔥 Config do Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyAH86f5LoSBj63MIR7SzVDGkrLP90Zy6jY",
-        authDomain: "registro-players.firebaseapp.com",
-        databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
-        projectId: "registro-players",
-        storageBucket: "registro-players.firebasestorage.app",
-        messagingSenderId: "156344963881",
-        appId: "1:156344963881:web:79efd9aeade8454d8b5d38",
-        measurementId: "G-7HKNWBDJYT"
-    };
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script>
+        // 🔥 Config do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAH86f5LoSBj63MIR7SzVDGkrLP90Zy6jY",
+            authDomain: "registro-players.firebaseapp.com",
+            databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
+            projectId: "registro-players",
+            storageBucket: "registro-players.firebasestorage.app",
+            messagingSenderId: "156344963881",
+            appId: "1:156344963881:web:79efd9aeade8454d8b5d38",
+            measurementId: "G-7HKNWBDJYT"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    f
+        const ADMIN_PASSWORD = "minhaSenhaSecreta"; // altere aqui sua senha
+
+        function addPlayer() {
+            const name = document.getElementById("name").value.trim();
+            const classe = document.getElementById("classe").value.trim();
+            const nick = document.getElementById("nick").value.trim();
+
+            if (!name || !classe || !nick) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+
+            const newPlayerRef = db.ref("players").push();
+            newPlayerRef.set({ name, classe, nick });
+            alert("Cadastro efetuado com sucesso!");
+
+            document.getElementById("name").value = "";
+            document.getElementById("classe").value = "";
+            document.getElementById("nick").value = "";
+        }
+
+        function checkAdmin(action) {
+            const senha = prompt("Digite a senha de administrador:");
+            if (senha === ADMIN_PASSWORD) {
+                if (action === "limpar") clearList();
+                else if (action === "exportar") exportList();
+            } el
