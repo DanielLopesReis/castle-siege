@@ -11,18 +11,28 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
 
-// Emails autorizados para limpar/exportar
+// Email autorizado para ações de administração
 const ADMIN_EMAILS = ["daniel.consultor01@gmail.com"];
+
+// Siglas permitidas
+const ALLOWED_CLASSES = ["BK", "MG", "DL", "SM", "ELF"];
 
 // Registra novo jogador
 function addPlayer() {
     const name = document.getElementById("name").value.trim();
-    const playerClass = document.getElementById("class").value.trim();
+    const playerClass = document.getElementById("class").value.trim().toUpperCase();
     const nick = document.getElementById("nick").value.trim();
 
     if (!name || !playerClass || !nick) {
         alert("Preencha todos os campos!");
+        return;
+    }
+
+    // Valida sigla da classe
+    if (!ALLOWED_CLASSES.includes(playerClass)) {
+        alert(`Classe inválida! Siglas permitidas: ${ALLOWED_CLASSES.join(", ")}`);
         return;
     }
 
@@ -55,11 +65,7 @@ loadPlayers();
 
 // Exportar lista para txt
 function exportList() {
-    firebase.auth().onAuthStateChanged(user => {
-        if (!user || !ADMIN_EMAILS.includes(user.email)) {
-            alert("Ação restrita! Apenas emails autorizados.");
-            return;
-        }
+    promptLogin(() => {
         db.ref("players").get().then(snapshot => {
             let txt = "";
             snapshot.forEach(child => {
@@ -76,18 +82,19 @@ function exportList() {
 
 // Limpar lista
 function clearList() {
-    firebase.auth().onAuthStateChanged(user => {
-        if (!user || !ADMIN_EMAILS.includes(user.email)) {
-            alert("Ação restrita! Apenas emails autorizados.");
-            return;
-        }
+    promptLogin(() => {
         if (confirm("Deseja realmente limpar toda a lista?")) {
             db.ref("players").remove();
         }
     });
 }
 
-// Autenticação temporária via email (prompt)
-firebase.auth().signInWithEmailAndPassword(prompt("Digite seu email autorizado:"), "dummyPass").catch(err => {
-    // Não precisa de senha real, só valida email
-});
+// Função para autenticação rápida via email
+function promptLogin(callback) {
+    const email = prompt("Digite seu email autorizado:");
+    if (!ADMIN_EMAILS.includes(email)) {
+        alert("Email não autorizado!");
+        return;
+    }
+    callback();
+}
