@@ -1,89 +1,82 @@
-// 🔥 Config do Firebase
+// 🔥 Config do Firebase (substitua pelos seus dados)
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "registro-players.firebaseapp.com",
-  databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
-  projectId: "registro-players",
-  storageBucket: "registro-players.appspot.com",
-  messagingSenderId: "156344963881",
-  appId: "SUA_APP_ID",
-  measurementId: "SUA_MEASUREMENT_ID"
+    apiKey: "AIzaSyAH86f5LoSBj63MIR7SzVDGkrLP90Zy6jY",
+    authDomain: "registro-players.firebaseapp.com",
+    databaseURL: "https://registro-players-default-rtdb.firebaseio.com",
+    projectId: "registro-players",
+    storageBucket: "registro-players.firebasestorage.app",
+    messagingSenderId: "156344963881",
+    appId: "1:156344963881:web:79efd9aeade8454d8b5d38",
+    measurementId: "G-7HKNWBDJYT"
 };
 
 // Inicializa Firebase
-const app = firebase.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const auth = firebase.auth();
 
-// Referência pro Castle Siege
-const ref = db.ref("castle_siege/players");
+// Variável para controle de admin
+let isAdmin = false;
 
-// Formulário de cadastro
-document.getElementById("cadastroForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const nome = document.getElementById("nome").value;
-  const classe = document.getElementById("classe").value;
-  const nick = document.getElementById("nick").value;
+// Cadastro de jogador
+document.getElementById("formCadastro").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const nome = document.getElementById("nome").value.trim();
+    const classe = document.getElementById("classe").value.trim();
+    const nick = document.getElementById("nick").value.trim();
 
-  ref.push({ nome, classe, nick });
-
-  e.target.reset();
-});
-
-// Atualiza lista em tempo real
-ref.on("value", (snapshot) => {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
-  snapshot.forEach((child) => {
-    const li = document.createElement("li");
-    const dados = child.val();
-    li.textContent = `${dados.nome} - ${dados.classe} - ${dados.nick}`;
-    lista.appendChild(li);
-  });
-});
-
-// --- LOGIN ADMIN ---
-const loginBtn = document.getElementById("loginBtn");
-const logoutBtn = document.getElementById("logoutBtn");
-const resetBtn = document.getElementById("resetBtn");
-
-// login
-loginBtn.addEventListener("click", async () => {
-  const email = document.getElementById("adminEmail").value;
-  const senha = document.getElementById("adminSenha").value;
-  try {
-    await auth.signInWithEmailAndPassword(email, senha);
-    alert("Login realizado!");
-  } catch (err) {
-    alert("Erro: " + err.message);
-  }
-});
-
-// logout
-logoutBtn.addEventListener("click", async () => {
-  await auth.signOut();
-});
-
-// observa autenticação
-auth.onAuthStateChanged((user) => {
-  if (user) {
-    // email autorizado → mostra reset/logout
-    const admins = ["seuemail@gmail.com", "outro@gmail.com"];
-    if (admins.includes(user.email)) {
-      resetBtn.style.display = "inline";
+    if (!nome || !classe || !nick) {
+        document.getElementById("msgCadastro").textContent = "Preencha todos os campos!";
+        document.getElementById("msgCadastro").style.color = "red";
+        return;
     }
-    loginBtn.style.display = "none";
-    logoutBtn.style.display = "inline";
-  } else {
-    resetBtn.style.display = "none";
-    loginBtn.style.display = "inline";
-    logoutBtn.style.display = "none";
-  }
+
+    db.ref("players/" + nick).set({ nome, classe, nick }, function(error) {
+        if (error) {
+            document.getElementById("msgCadastro").textContent = "Erro ao cadastrar. Tente novamente.";
+            document.getElementById("msgCadastro").style.color = "red";
+        } else {
+            document.getElementById("msgCadastro").textContent = "Cadastro efetuado com sucesso!";
+            document.getElementById("msgCadastro").style.color = "green";
+            document.getElementById("formCadastro").reset();
+        }
+    });
 });
 
-// reset lista
-resetBtn.addEventListener("click", () => {
-  if (confirm("Tem certeza que deseja apagar toda a lista?")) {
-    ref.remove();
-  }
+// Login Admin
+document.getElementById("loginBtn").addEventListener("click", function() {
+    const email = document.getElementById("adminEmail").value.trim();
+    const adminEmails = [
+        "seuemail@gmail.com",
+        //"outro@gmail.com",
+        //"terceiro@gmail.com"
+    ];
+
+    if (adminEmails.includes(email)) {
+        isAdmin = true;
+        alert("Acesso de administrador concedido!");
+    } else {
+        isAdmin = false;
+        alert("Acesso negado! Você não é administrador.");
+    }
+});
+
+// Exportar lista de jogadores
+document.getElementById("exportBtn").addEventListener("click", function() {
+    if (!isAdmin) {
+        alert("Apenas administradores podem exportar a lista.");
+        return;
+    }
+
+    const exportData = [];
+    db.ref("players").once("value", function(snapshot) {
+        snapshot.forEach(function(childSnapshot) {
+            exportData.push(childSnapshot.val());
+        });
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "players_list.json";
+        link.click();
+    });
 });
